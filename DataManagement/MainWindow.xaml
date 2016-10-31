@@ -1,0 +1,31 @@
+﻿<Window x:Class="DataManagement.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DataManagement"
+        mc:Ignorable="d"
+        Title="Data Management" Height="350" Width="525"
+        WindowState="Maximized"
+		Icon="Images/WindowIcon.png">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+			<Button Background="White" Click="AddButton_Click" Margin="4">
+				<Image Source="Images/Add.png" Margin="1"/>
+			</Button>
+			<Button Background="White" Click="PreviewButton_Click" Margin="4">
+				<Image Source="Images/Preview.png" Margin="1"/>
+			</Button>
+			<Button Background="White" Click="DeleteButton_Click" Margin="4">
+				<Image Source="Images/Delete.png" Margin="1"/>
+			</Button>
+		</StackPanel>
+		<DataGrid Name="dataGrid" Grid.Row="1" CanUserAddRows="false" IsReadOnly="True" AutoGenerateColumns="False">
+            
+        </DataGrid>
+    </Grid>
+</Window>

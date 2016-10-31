@@ -1,0 +1,31 @@
+﻿<Window x:Class="DataManagement.ViewEditItem"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DataManagement"
+        xmlns:properties="clr-namespace:DataManagement.Properties"
+        mc:Ignorable="d"
+        Title="View/edit Item" Height="300" Width="300"
+		ShowInTaskbar="False" WindowState="Maximized"
+		Closing="Window_Closing"
+		Icon="Images/WindowIcon.png">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="40" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="50" />
+		</Grid.RowDefinitions>
+		<StackPanel Orientation="Horizontal" Grid.Row="0">
+			<Button Background="White" Click="ExportButton_Click" Margin="4">
+				<Image Source="Images/Export.png" Margin="1"/>
+			</Button>
+		</StackPanel>
+		<TabControl Name="tabs" Grid.Row="1">
+
+		</TabControl>
+		<StackPanel Orientation="Horizontal" Grid.Row="2">
+			<Button Name="EditSaveButton" Height="30" HorizontalAlignment="Center" Content="{x:Static properties:Resources.Button_EditingOn}" Margin="5,10" Width="120" Click="EditSaveButton_Click"></Button>
+		</StackPanel>
+	</Grid>
+</Window>

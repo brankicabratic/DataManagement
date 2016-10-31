@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DataManagement.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="DataStructureFileLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DataStructure.xml</Value>
+    </Setting>
+    <Setting Name="LabelSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">250</Value>
+    </Setting>
+    <Setting Name="TextFieldSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">600</Value>
+    </Setting>
+    <Setting Name="DataFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Pacijenti.xml</Value>
+    </Setting>
+    <Setting Name="TemplateFileLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Template.docx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

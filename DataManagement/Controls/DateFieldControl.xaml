@@ -1,0 +1,14 @@
+﻿<local:FieldControl x:Class="DataManagement.Controls.DateFieldControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DataManagement.Controls"
+             xmlns:properties="clr-namespace:DataManagement.Properties"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+	<StackPanel Orientation="Horizontal">
+		<Label Name="FieldName" Width="{Binding Source={x:Static properties:Settings.Default}, Path=LabelSize}"/>
+		<DatePicker Name="Date" SelectedDateFormat="Long" DisplayDateStart="1/01/1900" DisplayDateEnd="1/01/2100" FirstDayOfWeek="Monday" DisplayDate="{Binding Path=DateValue}"  Width="{Binding Source={x:Static properties:Settings.Default}, Path=TextFieldSize}"/>
+	</StackPanel>
+</local:FieldControl>

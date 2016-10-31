@@ -1,0 +1,14 @@
+﻿<local:FieldControl x:Class="DataManagement.Controls.TextBlockControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DataManagement.Controls"
+             xmlns:properties="clr-namespace:DataManagement.Properties"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+	<StackPanel Orientation="Horizontal">
+		<Label Name="FieldName" Width="{Binding Source={x:Static properties:Settings.Default}, Path=LabelSize}"/>
+		<TextBox Name="Text"  Width="{Binding Source={x:Static properties:Settings.Default}, Path=TextFieldSize}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" AcceptsReturn="True"  Margin="0,5" Height="100"/>
+	</StackPanel>
+</local:FieldControl>
