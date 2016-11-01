@@ -8,6 +8,7 @@ using System.Xml;
 
 namespace DataManagement.Models
 {
+	[Serializable]
     public class DataStructure
     {
         public static string TableFieldsEl = "TableFields";
@@ -23,17 +24,26 @@ namespace DataManagement.Models
 		public static string SubNameAtt = "subName";
 		public static string DefaultAtt = "default";
 		public static string ConditionalAtt = "conditional";
+		public static string FileLocationAtt = "fileLocation";
+		public static string DocOutputMainFieldIDAtt = "docOutputMainFieldID";
+		public static string DocOutputFieldIDsAtt = "docOutputFieldIDs";
 
-		private static List<Field> tableFields;
-        private static Dictionary<string, Field> allFields;
-        private static Dictionary<string, List<Field>> tabs;
+		public static DataStructure MainDataStructure;
 
-        private static StringBuilder parsingErrors = new StringBuilder();
-        private static bool errorExists = false;
+		private static Dictionary<string, Field> allAppFields = new Dictionary<string, Field>();
 
-        public static bool LoadDataStructure()
+		public bool ErrorExists = false;
+
+		private List<Field> tableFields;
+        private Dictionary<string, Field> allFields;
+        private Dictionary<string, List<Field>> tabs;
+
+        private StringBuilder parsingErrors = new StringBuilder();        
+
+        public static DataStructure LoadDataStructure(string fileLocation, bool isMain = true, string idPrefix = "")
         {
-            string fileLocation = Properties.Settings.Default.DataStructureFileLocation;
+			DataStructure ds = new DataStructure();
+
             XmlDocument xml = new XmlDocument();
             xml.Load(fileLocation);
 
@@ -56,12 +66,12 @@ namespace DataManagement.Models
                     }
                     else if (node.Name == AllFieldsEl)
                     {
-                        LoadAllFields(node);
+                        ds.LoadAllFields(node, idPrefix);
                     }
                 }
                 catch
                 {
-                    LogError(Properties.Resources.Error_ElementContentParseError.Replace("%v1%", node.Name));
+                    ds.LogError(Properties.Resources.Error_ElementContentParseError.Replace("%v1%", node.Name));
                 }
             };
 
@@ -70,12 +80,20 @@ namespace DataManagement.Models
                 processNode(node);
             }
 
-            LoadTableFields(tableFieldsIds);
+            ds.LoadTableFields(tableFieldsIds);
 
-            return !errorExists;
+			if (isMain)
+				MainDataStructure = ds;
+
+            return ds;
         }
 
-		public static Dictionary<string, Field> GetAllFields(bool includeNested)
+		public static Dictionary<string, Field> GetAllAppFields()
+		{
+			return allAppFields;
+		}
+
+		public Dictionary<string, Field> GetAllFields(bool includeNested)
 		{
 			if (!includeNested)
 			{
@@ -90,22 +108,22 @@ namespace DataManagement.Models
 			return allFields;
 		}
 
-		public static List<Field> GetTableFields()
+		public List<Field> GetTableFields()
 		{
 			return tableFields;
 		}
 
-		public static Dictionary<string, List<Field>> GetTabs()
+		public Dictionary<string, List<Field>> GetTabs()
 		{
 			return tabs;
 		}
 
-        public static string GetErrorLogs()
+        public string GetErrorLogs()
         {
             return parsingErrors.ToString();
         }
 
-        private static void LoadAllFields(XmlNode allFieldsNode)
+        private void LoadAllFields(XmlNode allFieldsNode, string idPrefix)
         {
             allFields = new Dictionary<string, Field>();
 			tabs = new Dictionary<string, List<Field>>();
@@ -113,7 +131,7 @@ namespace DataManagement.Models
             {
                 if (field.Name == TabEl)
 				{
-					LoadTabFields(field);
+					LoadTabFields(field, idPrefix);
 				}
 				else
 				{
@@ -122,7 +140,7 @@ namespace DataManagement.Models
             }
         }
 
-        private static void LoadTableFields(string[] fieldIds)
+        private void LoadTableFields(string[] fieldIds)
         {
 			tableFields = new List<Field>(fieldIds.Length);
             foreach (string fieldId in fieldIds)
@@ -139,7 +157,7 @@ namespace DataManagement.Models
             }
         }
 
-		private static void LoadTabFields(XmlNode tab)
+		private void LoadTabFields(XmlNode tab, string idPrefix)
 		{
 			string tabName = tab.Attributes[NameAtt].Value;
 			List<Field> tabFields;
@@ -155,6 +173,7 @@ namespace DataManagement.Models
 			{
 				Action<Field> callback = (cF) => {
 					allFields[cF.Id] = cF;
+					allAppFields[cF.Id] = cF;
 					if (!cF.IsNested) tabFields.Add(cF);
 					propertyManager.Properties.Add(
 					   DynamicPropertyManager<DataItem>.CreateProperty<DataItem, string>(
@@ -167,7 +186,7 @@ namespace DataManagement.Models
 					));
 				};
 
-				Field newField = Field.CreateField(field, callback);
+				Field newField = Field.CreateField(field, callback, idPrefix);
 				if (newField == null)
 				{
 					LogError(Properties.Resources.Error_ElementParseError.Replace("%v1%", field.Name).Replace("%v2%", field.Attributes[IdAtt].Value));
@@ -175,9 +194,9 @@ namespace DataManagement.Models
 			}
 		}
 
-        public static void LogError(string error)
+        public void LogError(string error)
         {
-            errorExists = true;
+            ErrorExists = true;
             parsingErrors.Append(error + "\n");
         }
     }

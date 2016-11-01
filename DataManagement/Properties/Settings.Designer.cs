@@ -25,7 +25,7 @@ namespace DataManagement.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("DataStructure.xml")]
+        [global::System.Configuration.DefaultSettingValueAttribute("PacijentDataStructure.xml")]
         public string DataStructureFileLocation {
             get {
                 return ((string)(this["DataStructureFileLocation"]));

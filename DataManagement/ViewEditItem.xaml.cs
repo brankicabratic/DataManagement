@@ -32,14 +32,17 @@ namespace DataManagement
 		private List<FieldControl> allUserControls = new List<FieldControl>();
 		private bool isInEditMode = false;
 
-		public ViewEditItem(DataItem dataItem)
+		public ViewEditItem(DataStructure dataStructure, DataItem dataItem, string label, bool enableExport)
 		{
 			originalDataItem = dataItem;
 			copiedDataItem = ObjectCopier.Clone<DataItem>(dataItem);
 
 			InitializeComponent();
 
-			Dictionary<string, List<Field>> tabsDict = DataStructure.GetTabs();
+			ItemName.Content = label;
+			ExportButton.Visibility = enableExport ? Visibility.Visible : Visibility.Collapsed;
+
+			Dictionary<string, List<Field>> tabsDict = dataStructure.GetTabs();
 
 			foreach (string tabName in tabsDict.Keys)
 			{
@@ -77,7 +80,7 @@ namespace DataManagement
 				if (File.Exists(templateLocation))
 				{
 					DocX doc = DocX.Load(templateLocation);
-					Dictionary<string, Field> allFields = DataStructure.GetAllFields(true);
+					Dictionary<string, Field> allFields = DataStructure.MainDataStructure.GetAllFields(true);
 					foreach (string id in allFields.Keys)
 					{
 						string value = copiedDataItem.GetField(id).GetDocOutput();

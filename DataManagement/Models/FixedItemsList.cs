@@ -23,7 +23,7 @@ namespace DataManagement.Models
 		{
 			get
 			{
-				return (DataStructure.GetAllFields(true)[Id] as FixedItemsList).isConditional;
+				return (DataStructure.GetAllAppFields()[Id] as FixedItemsList).isConditional;
 			}
 		}
 		[XmlIgnore]

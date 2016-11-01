@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="DataStructureFileLocation" Type="System.String" Scope="User">
-      <Value Profile="(Default)">DataStructure.xml</Value>
+      <Value Profile="(Default)">PacijentDataStructure.xml</Value>
     </Setting>
     <Setting Name="LabelSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">250</Value>

@@ -22,6 +22,7 @@ namespace DataManagement.Models
 	[XmlInclude(typeof(ComboBox))]
 	[XmlInclude(typeof(ConditionalTextField))]
 	[XmlInclude(typeof(FixedItemsList))]
+	[XmlInclude(typeof(ExternalDataStructureList))]
 	[XmlInclude(typeof(ItemsList<TextField>))]
 	[XmlInclude(typeof(ItemsList<TextBlock>))]
 	[XmlInclude(typeof(ItemsList<CheckBox>))]
@@ -38,6 +39,7 @@ namespace DataManagement.Models
 		private static string CheckBoxEl = "CheckBox";
 		private static string ComboBoxEl = "ComboBox";
 		private static string ComboBoxItemEl = "ComboBoxItem";
+		private static string ExternalDataStructureListEl = "ExternalDataStructureList";
 
 		[XmlAttribute]
 		public string Id;
@@ -86,7 +88,7 @@ namespace DataManagement.Models
 			get
 			{
 				Field field;
-				if (DataStructure.GetAllFields(true).TryGetValue(Id, out field))
+				if (DataStructure.GetAllAppFields().TryGetValue(Id, out field))
 				{
 					return field;
 				}
@@ -184,7 +186,7 @@ namespace DataManagement.Models
 				}
 				catch
 				{
-					DataStructure.LogError("Default value in combo box " + nodeId + " has to be number.");
+					DataStructure.MainDataStructure.LogError("Default value in combo box " + nodeId + " has to be number.");
 				}
 				newField = new ComboBox(nodeId, nodeName, validationType, validationValue, possibleValues, defaultValueIndex);
 			}
@@ -201,6 +203,16 @@ namespace DataManagement.Models
 				fixedItemsListFied.SetIsConditional(attribute != null && attribute.Value.ToLower() == "true");
 
 				newField = fixedItemsListFied;
+			}
+			else if (node.Name == ExternalDataStructureListEl)
+			{
+				XmlAttribute fileLocationAtt = node.Attributes[DataStructure.FileLocationAtt];
+				XmlAttribute docOutputMainFieldIDAtt = node.Attributes[DataStructure.DocOutputMainFieldIDAtt];
+				XmlAttribute docOutputFieldIDsAtt = node.Attributes[DataStructure.DocOutputFieldIDsAtt];
+				string fileLocation = fileLocationAtt != null ? fileLocationAtt.Value : "";
+				string docOutputMainFieldID = docOutputMainFieldIDAtt != null ? docOutputMainFieldIDAtt.Value : "";
+				string docOutputFieldIDs = docOutputFieldIDsAtt != null ? docOutputFieldIDsAtt.Value : "";
+				newField = new ExternalDataStructureList(nodeId, fileLocation, docOutputMainFieldID, docOutputFieldIDs);
 			}
 
 			if (!string.IsNullOrEmpty(idPrefix)) newField.IsNested = true;

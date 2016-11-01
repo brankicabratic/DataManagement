@@ -89,6 +89,9 @@
     <Compile Include="Controls\DateFieldControl.xaml.cs">
       <DependentUpon>DateFieldControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ExternalDataStructureListControl.xaml.cs">
+      <DependentUpon>ExternalDataStructureListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\FieldControl.cs" />
     <Compile Include="Controls\FixedItemsListControl.xaml.cs">
       <DependentUpon>FixedItemsListControl.xaml</DependentUpon>
@@ -100,6 +103,7 @@
       <DependentUpon>TextBlockControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\ComboBox.cs" />
+    <Compile Include="Models\ExternalDataStructureList.cs" />
     <Compile Include="Models\FixedItemsList.cs" />
     <Compile Include="Models\ItemsList.cs" />
     <Compile Include="Models\TextBlock.cs" />
@@ -128,6 +132,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DateFieldControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ExternalDataStructureListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -235,7 +243,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Icon.ico" />
-    <Resource Include="bin\Debug\DataStructure.xml" />
+    <Resource Include="bin\Debug\PacijentDataStructure.xml" />
+    <Resource Include="bin\Debug\PregledDataStructure.xml" />
     <Content Include="libs\DocX.dll" />
   </ItemGroup>
   <ItemGroup>

@@ -27,14 +27,14 @@ namespace DataManagement
 
 			try
             {
-                bool loadSuccessfull = DataStructure.LoadDataStructure();
-				if (!loadSuccessfull)
+                DataStructure loadedDS = DataStructure.LoadDataStructure(Properties.Settings.Default.DataStructureFileLocation);
+				if (loadedDS.ErrorExists)
 				{
-					MessageBox.Show(DataStructure.GetErrorLogs(), Properties.Resources.Message_DataStructureParseError_Caption);
+					MessageBox.Show(loadedDS.GetErrorLogs(), Properties.Resources.Message_DataStructureParseError_Caption);
 				}
 				else
 				{
-					foreach (Field field in DataStructure.GetTableFields())
+					foreach (Field field in loadedDS.GetTableFields())
 					{
 						DataGridTextColumn textColumn = new DataGridTextColumn();
 						textColumn.Header = field.Name;
@@ -54,7 +54,7 @@ namespace DataManagement
 
 		private void AddButton_Click(object sender, RoutedEventArgs e)
 		{
-			NewEntry newEntryWindow = new NewEntry();
+			NewEntry newEntryWindow = new NewEntry(DataStructure.MainDataStructure, (dataItem) => { Data.AddDataItem(dataItem); });
 			newEntryWindow.Owner = this;
 			newEntryWindow.ShowDialog();
 		}
@@ -73,7 +73,7 @@ namespace DataManagement
 				MessageBox.Show(this, Properties.Resources.Message_InternalError_Text, Properties.Resources.Message_InternalError_Caption);
 				return;
 			}
-			ViewEditItem viewEditItemWindow = new ViewEditItem(dataItem);
+			ViewEditItem viewEditItemWindow = new ViewEditItem(DataStructure.MainDataStructure, dataItem, "", true);
 			viewEditItemWindow.Owner = this;
 			viewEditItemWindow.OnDataChanged += RefreshData;
 			viewEditItemWindow.ShowDialog();			

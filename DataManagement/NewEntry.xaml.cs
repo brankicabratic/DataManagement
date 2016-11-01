@@ -23,12 +23,18 @@ namespace DataManagement
 		private DataItem dataItem;
 		private bool isSaved = false;
 
-		public NewEntry()
+		private DataStructure dataStructure;
+		private Action<DataItem> onSave;
+
+		public NewEntry(DataStructure dataStructure, Action<DataItem> onSave)
 		{
 			InitializeComponent();
 
-			dataItem = new DataItem(true);
-			Dictionary<string, List<Field>> tabs = DataStructure.GetTabs();
+			this.dataStructure = dataStructure;
+			this.onSave = onSave;
+
+			dataItem = new DataItem(dataStructure);
+			Dictionary<string, List<Field>> tabs = dataStructure.GetTabs();
 			if (tabs.Keys.Count > 1)
 			{
 				foreach (string tabName in tabs.Keys)
@@ -74,7 +80,7 @@ namespace DataManagement
 
 		private void SaveButton_Click(object sender, RoutedEventArgs e)
 		{
-			Data.AddDataItem(dataItem);
+			if (onSave != null) onSave(dataItem);
 			isSaved = true;
 			Close();
 		}

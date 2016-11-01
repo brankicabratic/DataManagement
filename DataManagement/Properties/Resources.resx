@@ -141,6 +141,9 @@
   <data name="Error_WrongElementPosition" xml:space="preserve">
     <value>Element %v1% se nalazi van %v2% elementa.</value>
   </data>
+  <data name="ExternalDataViewItem_Title" xml:space="preserve">
+    <value>Pregled pacijenta</value>
+  </data>
   <data name="Message_ChangeLossWarning_Caption" xml:space="preserve">
     <value>Odustanak od editovanja</value>
   </data>

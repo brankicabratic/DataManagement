@@ -133,6 +133,15 @@ namespace DataManagement.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pregled pacijenta.
+        /// </summary>
+        public static string ExternalDataViewItem_Title {
+            get {
+                return ResourceManager.GetString("ExternalDataViewItem_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Odustanak od editovanja.
         /// </summary>
         public static string Message_ChangeLossWarning_Caption {

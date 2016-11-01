@@ -17,11 +17,11 @@ namespace DataManagement.Models
 			Fields = new List<Field>();
 		}
 
-		public DataItem(bool initializeFields) : this()
+		public DataItem(DataStructure dataStructure) : this()
 		{
-			if (initializeFields)
+			if (dataStructure != null)
 			{
-				Dictionary<string, Field> allFields = DataStructure.GetAllFields(false);
+				Dictionary<string, Field> allFields = dataStructure.GetAllFields(false);
 				foreach (string key in allFields.Keys)
 				{
 					Fields.Add(ObjectCopier.Clone<Field>(allFields[key]));
@@ -53,7 +53,7 @@ namespace DataManagement.Models
 			if (field == null)
 			{
 				Field dsField;
-				if (DataStructure.GetAllFields(true).TryGetValue(id, out dsField))
+				if (DataStructure.GetAllAppFields().TryGetValue(id, out dsField))
 				{
 					field = ObjectCopier.Clone<Field>(dsField);
 					Fields.Add(field);

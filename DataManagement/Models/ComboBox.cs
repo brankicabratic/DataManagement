@@ -40,7 +40,7 @@ namespace DataManagement.Models
 			{
 				if (possibleValues != null) return possibleValues;
 
-				return (DataStructure.GetAllFields(true)[Id] as ComboBox).PossibleValues;
+				return (DataStructure.GetAllAppFields()[Id] as ComboBox).PossibleValues;
 			}
 
 			set

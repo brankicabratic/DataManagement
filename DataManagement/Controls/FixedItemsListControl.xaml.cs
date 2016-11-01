@@ -30,7 +30,7 @@ namespace DataManagement.Controls
 		{
 			FieldName.Content = fixedItemsList.Name;
 
-			FixedItemsList dataStructure = DataStructure.GetAllFields(true)[fixedItemsList.Id] as FixedItemsList;
+			FixedItemsList dataStructure = DataStructure.GetAllAppFields()[fixedItemsList.Id] as FixedItemsList;
 
 			foreach (Field dsField in dataStructure.Items)
 			{
