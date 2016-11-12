@@ -17,12 +17,12 @@ namespace DataManagement.Models
 		public bool Value { get { return boolValue; } set { boolValue = value; } }
 
 		private bool boolValue;
-
+		
 		public CheckBox() { }
 
-		public CheckBox(string id, string name, ValidationType validation, string validationValue) : base(id, name, validation, validationValue) { }
+		public CheckBox(string id, string name, ValidationType validation, string validationValue, bool? includeInExcelExport) : base(id, name, validation, validationValue, includeInExcelExport) { }
 
-		public override FieldControl GenerateUIElement()
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
 			CheckBoxControl control = new CheckBoxControl();
 			control.Initialize(this);
@@ -39,9 +39,15 @@ namespace DataManagement.Models
 			return boolValue ? Properties.Resources.Yes : Properties.Resources.No;
 		}
 
+		public override object GetXslOutput()
+		{
+			return boolValue ? 1 : 0;
+		}
+
 		public override void SetValue(string value)
 		{
 			boolValue = value != "0";
 		}
+
 	}
 }

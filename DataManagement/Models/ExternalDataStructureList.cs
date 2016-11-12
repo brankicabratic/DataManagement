@@ -26,6 +26,22 @@ namespace DataManagement.Models
 		}
 		[XmlIgnore]
 		public ObservableCollection<DataItem> Items { get { return items; } set { items = value; } }
+		[XmlIgnore]
+		private string DocOutputMainFieldID
+		{
+			get
+			{
+				return (DataStructure.GetAllAppFields()[Id] as ExternalDataStructureList).docOutputMainFieldID;
+			}
+		}
+		[XmlIgnore]
+		public List<string> DocOutputFieldIDs
+		{
+			get
+			{
+				return (DataStructure.GetAllAppFields()[Id] as ExternalDataStructureList).docOutputFieldIDs;
+			}
+		}
 
 		private DataStructure dataStructure;
 		private ObservableCollection<DataItem> items = new ObservableCollection<DataItem>();
@@ -33,16 +49,20 @@ namespace DataManagement.Models
 		private string docOutputMainFieldID;
 		private List<string> docOutputFieldIDs;
 
-		public ExternalDataStructureList() { }
-
-		public ExternalDataStructureList(string id, string fileLocation, string docOutputMainFieldID, string docOutputFieldIDs) : base(id, "", ValidationType.None, "")
+		public ExternalDataStructureList()
 		{
-			this.docOutputMainFieldID = docOutputMainFieldID;
-			this.docOutputFieldIDs = docOutputFieldIDs.Split(';').ToList();
-			dataStructure = DataStructure.LoadDataStructure(fileLocation, false);
+			IsLeaf = false;
 		}
 
-		public override FieldControl GenerateUIElement()
+		public ExternalDataStructureList(string id, string fileLocation, string docOutputMainFieldID, string docOutputFieldIDs) : base(id, "", ValidationType.None, "", null)
+		{
+			IsLeaf = false;
+			this.docOutputMainFieldID = docOutputMainFieldID;
+			this.docOutputFieldIDs = docOutputFieldIDs.Split(';').ToList();
+			dataStructure = DataStructure.LoadDataStructure(fileLocation, false, id + "_");
+		}
+
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
 			ExternalDataStructureListControl control = new ExternalDataStructureListControl();
 			control.Initialize(this);
@@ -72,17 +92,22 @@ namespace DataManagement.Models
 		
 			foreach (DataItem item in Items)
 			{
-				Field mainField = item.GetField(docOutputMainFieldID);
+				Field mainField = item.GetField(DocOutputMainFieldID);
 				sb.Append(mainField.GetDocOutput() + "\n");
-				foreach (string fieldId in docOutputFieldIDs)
+				foreach (string fieldId in DocOutputFieldIDs)
 				{
 					Field field = item.GetField(fieldId);
-					sb.Append("\t" + mainField.GetDocOutput() + "\n");
+					sb.Append("\t" + field.GetDocOutput().Replace("\n", "\n\t") + "\n");
 				}
 				sb.Append("\n");
 			}
 
 			return sb.ToString();
+		}
+
+		public override object GetXslOutput()
+		{
+			return "";
 		}
 
 		public override void SetValue(string value)

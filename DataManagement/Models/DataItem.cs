@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Xml.Serialization;
 
 namespace DataManagement.Models
@@ -22,14 +23,17 @@ namespace DataManagement.Models
 			if (dataStructure != null)
 			{
 				Dictionary<string, Field> allFields = dataStructure.GetAllFields(false);
+				int nullCount = 0;
 				foreach (string key in allFields.Keys)
 				{
+					if (allFields[key] == null) { nullCount++; MessageBox.Show(null, "Null za: " + key, "Greška"); }
 					Fields.Add(ObjectCopier.Clone<Field>(allFields[key]));
 				}
+				
 			}
 		}
 
-		public void CoppyFields(DataItem dataItem)
+		public void CopyFields(DataItem dataItem)
 		{
 			foreach (Field f in Fields)
 			{
@@ -50,6 +54,7 @@ namespace DataManagement.Models
 		public Field GetField(string id)
 		{
 			Field field = Fields.Find(x => x.Id == id);
+
 			if (field == null)
 			{
 				Field dsField;
@@ -57,6 +62,21 @@ namespace DataManagement.Models
 				{
 					field = ObjectCopier.Clone<Field>(dsField);
 					Fields.Add(field);
+				}
+			}
+			return field;
+		}
+
+		public Field GetFieldWithParentReturn(string id)
+		{
+			Field field = null;
+			while (field == null && id != "")
+			{
+				field = Fields.Find(x => x.Id == id);
+				if (field == null)
+				{
+					int index = Math.Max(id.LastIndexOf("_"), id.LastIndexOf("."));
+					id = index >= 0 ? id.Substring(0, index) : "";
 				}
 			}
 			return field;

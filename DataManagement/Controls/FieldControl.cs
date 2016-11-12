@@ -12,6 +12,9 @@ namespace DataManagement.Controls
 {
 	public abstract class FieldControl: UserControl
 	{
+		public bool IsMandatory = false;
+		public bool IsEdited = false;
+
 		public abstract void SetEditable(bool isEditable);
 
 		protected void AppendValidationToBinding(Binding binding, Field field)

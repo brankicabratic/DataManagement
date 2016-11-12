@@ -1,4 +1,5 @@
-﻿using DataManagement.Models;
+﻿using DataManagement.Controls;
+using DataManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,8 @@ namespace DataManagement
 		private DataStructure dataStructure;
 		private Action<DataItem> onSave;
 
+		private List<FieldControl> mandatoryFields = new List<FieldControl>();
+
 		public NewEntry(DataStructure dataStructure, Action<DataItem> onSave)
 		{
 			InitializeComponent();
@@ -34,7 +37,7 @@ namespace DataManagement
 			this.onSave = onSave;
 
 			dataItem = new DataItem(dataStructure);
-			Dictionary<string, List<Field>> tabs = dataStructure.GetTabs();
+			Dictionary<string, List<Field>> tabs = dataStructure.GetTabs(true);
 			if (tabs.Keys.Count > 1)
 			{
 				foreach (string tabName in tabs.Keys)
@@ -74,15 +77,33 @@ namespace DataManagement
 		{
 			foreach (Field field in fields)
 			{
-				parent.Children.Add(field.GenerateUIElement());
+				FieldControl control = field.GenerateUIElement(false);
+				if (control.IsMandatory) mandatoryFields.Add(control);
+				parent.Children.Add(control);
 			}
 		}
 
 		private void SaveButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (onSave != null) onSave(dataItem);
-			isSaved = true;
-			Close();
+			bool mandatoryFieldsEdited = true;
+			foreach (FieldControl control in mandatoryFields)
+				if (!control.IsEdited)
+				{
+					mandatoryFieldsEdited = false;
+					break;
+				}
+
+			if (!mandatoryFieldsEdited)
+			{
+				MessageBox.Show(this, Properties.Resources.Message_MandatoryFieldsNotEdited_Text, Properties.Resources.Message_MandatoryFieldsNotEdited_Caption);
+				return;
+			}
+			else
+			{
+				if (onSave != null) onSave(dataItem);
+				isSaved = true;
+				Close();
+			}
 		}
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

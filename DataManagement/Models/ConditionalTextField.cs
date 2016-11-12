@@ -14,6 +14,7 @@ namespace DataManagement.Models
 	public class ConditionalTextField : Field
 	{
 		private static string FalseAnswer = "---";
+		private static string TrueAnswer = "!-+-+-!";
 
 		[XmlIgnore]
 		public string Value { get { return textValue; } set { textValue = value; } }
@@ -38,14 +39,14 @@ namespace DataManagement.Models
 		private string textValue;
 		private bool boolValue;
 
-		public ConditionalTextField() : this("", "", "", ValidationType.None, "") { }
+		public ConditionalTextField() : this("", "", "", ValidationType.None, "", null) { }
 
-		public ConditionalTextField(string id, string name, string subName, ValidationType validation, string validationValue) : base(id, name, validation, validationValue)
+		public ConditionalTextField(string id, string name, string subName, ValidationType validation, string validationValue, bool? includeInExcelExport) : base(id, name, validation, validationValue, includeInExcelExport)
 		{
 			this.subName = subName;
 		}
 
-		public override FieldControl GenerateUIElement()
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
 			ConditionalTextFieldControl control = new ConditionalTextFieldControl();
 			control.Initialize(this);
@@ -54,7 +55,7 @@ namespace DataManagement.Models
 
 		public override string GetValue()
 		{
-			return boolValue ? textValue : FalseAnswer;
+			return boolValue ? (string.IsNullOrEmpty(textValue) ? TrueAnswer : textValue) : FalseAnswer;
 		}
 
 		public override string GetDocOutput()
@@ -62,11 +63,25 @@ namespace DataManagement.Models
 			return boolValue ? textValue : "-";
 		}
 
+		public override object GetXslOutput()
+		{
+			if (!boolValue) return "";
+
+			int numericalValue;
+			if (int.TryParse(textValue, out numericalValue))
+			{
+				return numericalValue;
+			}
+			return textValue;
+		}
+
 		public override void SetValue(string value)
 		{
 			boolValue = value != FalseAnswer;
 			if (boolValue)
-				textValue = value;
+			{
+				textValue = value == TrueAnswer ? "" : value;
+			}
 		}
 	}
 }

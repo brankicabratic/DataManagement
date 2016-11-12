@@ -14,6 +14,9 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+			<Button Name="ExportButton" Background="White" Click="ExportButton_Click" Margin="4">
+				<Image Source="Images/Export.png" Margin="1"/>
+			</Button>
 			<Button Background="White" Click="AddButton_Click" Margin="4">
 				<Image Source="Images/Add.png" Margin="1"/>
 			</Button>

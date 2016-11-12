@@ -177,6 +177,12 @@
   <data name="Message_InternalError_Text" xml:space="preserve">
     <value>Dogodila se neočekivana greška u radu.</value>
   </data>
+  <data name="Message_MandatoryFieldsNotEdited_Caption" xml:space="preserve">
+    <value>Obavezna polja nisu popunjena</value>
+  </data>
+  <data name="Message_MandatoryFieldsNotEdited_Text" xml:space="preserve">
+    <value>Za svaku sekciju morate označiti da li je editovana ili ne.</value>
+  </data>
   <data name="Message_OnlyOnePreview_Caption" xml:space="preserve">
     <value>Pregled pacijenata</value>
   </data>
@@ -188,6 +194,9 @@
   </data>
   <data name="No" xml:space="preserve">
     <value>ne</value>
+  </data>
+  <data name="Validation_FieldIsEmpty" xml:space="preserve">
+    <value>Polje ne sme biti prazno.</value>
   </data>
   <data name="Validation_JMBG_InvalidLength" xml:space="preserve">
     <value>Dužina unete vrednosti mora biti 13.</value>

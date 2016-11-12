@@ -26,7 +26,7 @@ namespace DataManagement.Controls
 			InitializeComponent();
 		}
 
-		public void Initialize(Models.FixedItemsList fixedItemsList)
+		public void Initialize(Models.FixedItemsList fixedItemsList, bool isForEditing)
 		{
 			FieldName.Content = fixedItemsList.Name;
 
@@ -41,7 +41,7 @@ namespace DataManagement.Controls
 					fixedItemsList.Items.Add(field);
 				}
 				field.SetName(dsField.Name);
-				Container.Children.Add(field.GenerateUIElement());
+				Container.Children.Add(field.GenerateUIElement(isForEditing));
 			}
 
 			if (fixedItemsList.IsConditional)

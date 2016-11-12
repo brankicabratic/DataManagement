@@ -42,7 +42,7 @@ namespace DataManagement
 			ItemName.Content = label;
 			ExportButton.Visibility = enableExport ? Visibility.Visible : Visibility.Collapsed;
 
-			Dictionary<string, List<Field>> tabsDict = dataStructure.GetTabs();
+			Dictionary<string, List<Field>> tabsDict = dataStructure.GetTabs(false);
 
 			foreach (string tabName in tabsDict.Keys)
 			{
@@ -56,7 +56,7 @@ namespace DataManagement
 				sp.Orientation = System.Windows.Controls.Orientation.Vertical;
 				foreach (Field tabField in tabsDict[tabName])
 				{
-					FieldControl userControl = copiedDataItem.GetField(tabField.Id).GenerateUIElement();
+					FieldControl userControl = tabField is ExternalDataStructureList ? originalDataItem.GetField(tabField.Id).GenerateUIElement(true) : copiedDataItem.GetField(tabField.Id).GenerateUIElement(true);
 					userControl.SetEditable(false);
 					allUserControls.Add(userControl);
 					sp.Children.Add(userControl);
@@ -74,7 +74,7 @@ namespace DataManagement
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
 			saveFileDialog.DefaultExt = templateExtension;
 			saveFileDialog.Filter = "Document (*" + templateExtension + ")|*" + templateExtension;
-			saveFileDialog.FileName = copiedDataItem.GetField("ImePrezime").GetValue();
+			saveFileDialog.FileName = originalDataItem.GetField("ImePrezime").GetValue();
 			if (saveFileDialog.ShowDialog() == true)
 			{
 				if (File.Exists(templateLocation))
@@ -83,7 +83,7 @@ namespace DataManagement
 					Dictionary<string, Field> allFields = DataStructure.MainDataStructure.GetAllFields(true);
 					foreach (string id in allFields.Keys)
 					{
-						string value = copiedDataItem.GetField(id).GetDocOutput();
+						string value = originalDataItem.GetField(id).GetDocOutput();
 						if (value == null) value = "N/A";
 						doc.ReplaceText("[" + id + "]", value);
 					}
@@ -114,7 +114,7 @@ namespace DataManagement
 			{
 				allUserControls.ForEach(x => x.SetEditable(false));
 				EditSaveButton.Content = Properties.Resources.Button_EditingOn;
-				originalDataItem.CoppyFields(copiedDataItem);
+				originalDataItem.CopyFields(copiedDataItem);
 				Data.SaveData();
 				if (OnDataChanged != null) OnDataChanged();
 			}

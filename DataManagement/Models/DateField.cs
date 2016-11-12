@@ -15,7 +15,7 @@ namespace DataManagement.Models
 	public class DateField : Field
 	{
 		[XmlIgnore]
-		private static readonly CultureInfo cultureInfo = new CultureInfo("Lt-sr-SP");
+		private static readonly CultureInfo cultureInfo = new CultureInfo("de");
 
 		[XmlIgnore]
 		public DateTime DateValue { get { return textValue == null ? DateTime.Now : DateTime.Parse(textValue, cultureInfo); } set { this.textValue = value.ToString("d", cultureInfo); } }
@@ -28,9 +28,9 @@ namespace DataManagement.Models
 
 		public DateField() { }
 
-		public DateField(string id, string name, ValidationType validation, string validationValue) : base(id, name, validation, validationValue) { }
+		public DateField(string id, string name, ValidationType validation, string validationValue, bool? includeInExcelExport) : base(id, name, validation, validationValue, includeInExcelExport) { }
 
-		public override FieldControl GenerateUIElement()
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
 			DateFieldControl control = new DateFieldControl();
 			control.Initialize(this);
@@ -45,6 +45,11 @@ namespace DataManagement.Models
 		public override string GetDocOutput()
 		{
 			return GetValue();
+		}
+
+		public override object GetXslOutput()
+		{
+			return textValue;
 		}
 
 		public override void SetValue(string value)

@@ -15,8 +15,12 @@ namespace DataManagement.Models
 		[NonSerialized]
 		private ItemsListControl itemsListControl;
 
-		public override FieldControl GenerateUIElement()
+		private bool isForEditing;
+
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
+			this.isForEditing = isForEditing;
+
 			itemsListControl = new ItemsListControl();
 			itemsListControl.Initialize(Name);
 			itemsListControl.OnAddClick += AddNewItem;
@@ -24,7 +28,7 @@ namespace DataManagement.Models
 
 			foreach (FieldType item in items)
 			{
-				itemsListControl.AddNewItem(item.GenerateUIElement());
+				itemsListControl.AddNewItem(item.GenerateUIElement(isForEditing));
 			}
 
 			return itemsListControl;
@@ -44,6 +48,11 @@ namespace DataManagement.Models
 				sb.Append(field.GetDocOutput() + "\n\n");
 
 			return sb.ToString();
+		}
+
+		public override object GetXslOutput()
+		{
+			return "";
 		}
 
 		public override void SetValue(string value)
@@ -79,7 +88,7 @@ namespace DataManagement.Models
 			item.SetValue(value);
 			if (itemsListControl != null)
 			{
-				FieldControl control = item.GenerateUIElement();
+				FieldControl control = item.GenerateUIElement(isForEditing);
 				itemsListControl.AddNewItem(control);
 			}
 			items.Add(item);			

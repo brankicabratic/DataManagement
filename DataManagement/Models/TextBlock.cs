@@ -24,9 +24,9 @@ namespace DataManagement.Models
 
 		public TextBlock() { }
 
-		public TextBlock(string id, string name, ValidationType validation, string validationValue) : base(id, name, validation, validationValue) { }
+		public TextBlock(string id, string name, ValidationType validation, string validationValue, bool? includeInExcelExport) : base(id, name, validation, validationValue, includeInExcelExport) { }
 
-		public override FieldControl GenerateUIElement()
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
 			TextBlockControl control = new TextBlockControl();
 			control.Initialize(this);
@@ -39,6 +39,11 @@ namespace DataManagement.Models
 		}
 
 		public override string GetDocOutput()
+		{
+			return GetValue();
+		}
+
+		public override object GetXslOutput()
 		{
 			return GetValue();
 		}

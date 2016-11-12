@@ -1,4 +1,5 @@
 ﻿using DataManagement.Models;
+using DataManagement.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,7 @@ namespace DataManagement.Controls
 			b.Mode = BindingMode.TwoWay;
 			BindingOperations.SetBinding(Text, TextBox.TextProperty, b);
 			AppendValidationToBinding(b, textField);
+			b.ValidationRules.Add(new ValidationRuleConditionalField(BoolValue));
 
 			b = new Binding();
 			b.Source = textField;

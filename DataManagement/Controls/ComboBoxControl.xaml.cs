@@ -20,6 +20,8 @@ namespace DataManagement.Controls
 	/// </summary>
 	public partial class ComboBoxControl : FieldControl
 	{
+		private Models.ComboBox comboBox;
+
 		public ComboBoxControl()
 		{
 			InitializeComponent();
@@ -27,21 +29,47 @@ namespace DataManagement.Controls
 
 		public void Initialize(Models.ComboBox comboBox)
 		{
+			this.comboBox = comboBox;
 			FieldName.Content = comboBox.Name;
 
-			Binding b = new Binding();
-			b.Source = comboBox;
-			b.Path = new PropertyPath("Index");
-			b.Mode = BindingMode.TwoWay;
 			foreach (string value in comboBox.PossibleValues)
 				Value.Items.Add(value);
-			Value.SelectedIndex = comboBox.Index;
-			BindingOperations.SetBinding(Value, System.Windows.Controls.ComboBox.SelectedIndexProperty, b);
+			if (IsMandatory)
+				Value.Items.Add("");
+
+			if (!IsMandatory)
+			{
+				Binding b = new Binding();
+				b.Source = comboBox;
+				b.Path = new PropertyPath("Index");
+				b.Mode = BindingMode.TwoWay;
+				Value.SelectedIndex = comboBox.Index;
+				BindingOperations.SetBinding(Value, System.Windows.Controls.ComboBox.SelectedIndexProperty, b);
+			}
+			else
+			{
+				Value.SelectedIndex = comboBox.PossibleValues.Count;
+			}
 		}
 
 		public override void SetEditable(bool isEditable)
 		{
 			Value.IsEnabled = isEditable;
+		}
+
+		private void Value_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			IsEdited = !String.IsNullOrEmpty(Value.SelectedItem.ToString());
+			if (IsMandatory && IsEdited)
+			{
+				Binding b = new Binding();
+				b.Source = comboBox;
+				b.Path = new PropertyPath("Index");
+				b.Mode = BindingMode.TwoWay;
+				Value.Items.Remove("");
+				comboBox.Index = Value.SelectedIndex;
+				BindingOperations.SetBinding(Value, System.Windows.Controls.ComboBox.SelectedIndexProperty, b);
+			}
 		}
 	}
 }

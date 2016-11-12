@@ -17,12 +17,15 @@ namespace DataManagement.Models
 
 		public static string IdAtt = "id";
 		public static string NameAtt = "name";
+		public static string HideOnAddAtt = "hideOnAdd";
 		public static string ValidationAtt = "validation";
 		public static string ValidationValueAtt = "validationValue";
+		public static string IncludeInExcelExportAtt = "includeInExcelExport";
 		public static string DelimiterAtt = "delimiter";
 		public static string ListElementTypeAtt = "listElementType";
 		public static string SubNameAtt = "subName";
 		public static string DefaultAtt = "default";
+		public static string MandatoryAtt = "mandatory";
 		public static string ConditionalAtt = "conditional";
 		public static string FileLocationAtt = "fileLocation";
 		public static string DocOutputMainFieldIDAtt = "docOutputMainFieldID";
@@ -37,6 +40,7 @@ namespace DataManagement.Models
 		private List<Field> tableFields;
         private Dictionary<string, Field> allFields;
         private Dictionary<string, List<Field>> tabs;
+		private HashSet<string> hideOnAddTabs = new HashSet<string>();
 
         private StringBuilder parsingErrors = new StringBuilder();        
 
@@ -69,9 +73,10 @@ namespace DataManagement.Models
                         ds.LoadAllFields(node, idPrefix);
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    ds.LogError(Properties.Resources.Error_ElementContentParseError.Replace("%v1%", node.Name));
+                    ds.LogError(Properties.Resources.Error_ElementContentParseError.Replace("%v1%", node.Name) +
+						"\n" + e.Message + "\n" + e.StackTrace);
                 }
             };
 
@@ -80,7 +85,7 @@ namespace DataManagement.Models
                 processNode(node);
             }
 
-            ds.LoadTableFields(tableFieldsIds);
+            ds.LoadTableFields(tableFieldsIds, idPrefix);
 
 			if (isMain)
 				MainDataStructure = ds;
@@ -91,6 +96,18 @@ namespace DataManagement.Models
 		public static Dictionary<string, Field> GetAllAppFields()
 		{
 			return allAppFields;
+		}
+
+		public static Dictionary<string, Field> GetAllExcelExportFields()
+		{
+			Dictionary<string, Field> fields = new Dictionary<string, Field>();
+			foreach (string fieldID in allAppFields.Keys)
+			{
+				Field currentField = allAppFields[fieldID];
+				if (currentField.IsLeaf && currentField.IncludeInExcelExport)
+					fields[fieldID] = currentField;
+			}
+			return fields;
 		}
 
 		public Dictionary<string, Field> GetAllFields(bool includeNested)
@@ -113,8 +130,18 @@ namespace DataManagement.Models
 			return tableFields;
 		}
 
-		public Dictionary<string, List<Field>> GetTabs()
+		public Dictionary<string, List<Field>> GetTabs(bool isAdd)
 		{
+			if (isAdd)
+			{
+				Dictionary<string, List<Field>> tabs = new Dictionary<string, List<Field>>();
+				foreach (string tabName in this.tabs.Keys)
+				{
+					if (!hideOnAddTabs.Contains(tabName))
+						tabs[tabName] = this.tabs[tabName];
+				}
+				return tabs;
+			}
 			return tabs;
 		}
 
@@ -140,13 +167,13 @@ namespace DataManagement.Models
             }
         }
 
-        private void LoadTableFields(string[] fieldIds)
+        private void LoadTableFields(string[] fieldIds, string idPrefix)
         {
 			tableFields = new List<Field>(fieldIds.Length);
             foreach (string fieldId in fieldIds)
             {
 				Field field;
-                if (allFields.TryGetValue(fieldId, out field))
+                if (allFields.TryGetValue(idPrefix + fieldId, out field))
                 {
                     tableFields.Add(field);
 				}
@@ -160,6 +187,10 @@ namespace DataManagement.Models
 		private void LoadTabFields(XmlNode tab, string idPrefix)
 		{
 			string tabName = tab.Attributes[NameAtt].Value;
+			XmlAttribute hideOnAddAttribute = tab.Attributes[HideOnAddAtt];
+			if (hideOnAddAttribute != null && hideOnAddAttribute.Value.ToLower() == "true")
+				hideOnAddTabs.Add(tabName);
+
 			List<Field> tabFields;
 			if (!tabs.TryGetValue(tabName, out tabFields))
 			{
@@ -174,7 +205,8 @@ namespace DataManagement.Models
 				Action<Field> callback = (cF) => {
 					allFields[cF.Id] = cF;
 					allAppFields[cF.Id] = cF;
-					if (!cF.IsNested) tabFields.Add(cF);
+					bool isNested = string.IsNullOrEmpty(idPrefix) ? cF.IsNested : cF.Id.Replace(idPrefix, "").Contains(".");
+					if (!isNested) tabFields.Add(cF);
 					propertyManager.Properties.Add(
 					   DynamicPropertyManager<DataItem>.CreateProperty<DataItem, string>(
 						  cF.Id,

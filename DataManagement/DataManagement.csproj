@@ -9,11 +9,14 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DataManagement</RootNamespace>
     <AssemblyName>DataManagement</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -26,7 +29,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -39,15 +41,17 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
@@ -56,6 +60,10 @@
     <Reference Include="DocX, Version=1.0.0.20, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\DocX.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\ExcelLibrary.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -114,6 +122,7 @@
     <Compile Include="Utils\DynamicPropertyManager.cs" />
     <Compile Include="Utils\DynamicTypeDescriptionProvider.cs" />
     <Compile Include="Utils\ObjectCopier.cs" />
+    <Compile Include="Validation\ValidationRuleConditionalField.cs" />
     <Compile Include="Validation\ValidationRuleRange.cs" />
     <Compile Include="Validation\ValidationRuleJMBG.cs" />
     <Compile Include="ViewEditItem.xaml.cs">
@@ -236,6 +245,7 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="libs\ExcelLibrary.dll" />
     <Resource Include="Images\WindowIcon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -243,8 +253,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Icon.ico" />
-    <Resource Include="bin\Debug\PacijentDataStructure.xml" />
-    <Resource Include="bin\Debug\PregledDataStructure.xml" />
+    <Resource Include="bin\Debug\PacijentDataStructure.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Include="bin\Debug\PregledDataStructure.xml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Content Include="libs\DocX.dll" />
   </ItemGroup>
   <ItemGroup>

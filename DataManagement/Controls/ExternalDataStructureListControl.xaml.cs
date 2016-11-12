@@ -47,7 +47,11 @@ namespace DataManagement.Controls
 
 		private void AddButton_Click(object sender, RoutedEventArgs e)
 		{
-			NewEntry newEntryWindow = new NewEntry(externalDataStructureList.DataStructure, (dataItem) => { externalDataStructureList.Items.Add(dataItem); });
+			NewEntry newEntryWindow = new NewEntry(externalDataStructureList.DataStructure, (dataItem) => 
+			{
+				externalDataStructureList.Items.Add(dataItem); Data.SaveData();
+			});
+			newEntryWindow.Owner = Window.GetWindow(this);
 			newEntryWindow.ShowDialog();
 		}
 
@@ -56,16 +60,17 @@ namespace DataManagement.Controls
 			int selectedItemsCount = dataGrid.SelectedItems.Count;
 			if (selectedItemsCount != 1)
 			{
-				MessageBox.Show(null, Properties.Resources.Message_OnlyOnePreview_Text, Properties.Resources.Message_OnlyOnePreview_Caption);
+				MessageBox.Show(Window.GetWindow(this), Properties.Resources.Message_OnlyOnePreview_Text, Properties.Resources.Message_OnlyOnePreview_Caption);
 				return;
 			}
 			DataItem dataItem = dataGrid.SelectedItem as DataItem;
 			if (dataItem == null)
 			{
-				MessageBox.Show(null, Properties.Resources.Message_InternalError_Text, Properties.Resources.Message_InternalError_Caption);
+				MessageBox.Show(Window.GetWindow(this), Properties.Resources.Message_InternalError_Text, Properties.Resources.Message_InternalError_Caption);
 				return;
 			}
 			ViewEditItem viewEditItemWindow = new ViewEditItem(externalDataStructureList.DataStructure, dataItem, Properties.Resources.ExternalDataViewItem_Title, false);
+			viewEditItemWindow.Owner = Window.GetWindow(this);
 			viewEditItemWindow.OnDataChanged += RefreshData;
 			viewEditItemWindow.ShowDialog();
 		}
@@ -74,7 +79,7 @@ namespace DataManagement.Controls
 		{
 			int selectedItemsCount = dataGrid.SelectedItems.Count;
 			if (selectedItemsCount == 0) return;
-			MessageBoxResult result = MessageBox.Show(null, Properties.Resources.Message_DeletionConformation_Text.Replace("%v1%", selectedItemsCount.ToString()), Properties.Resources.Message_DeletionConformation_Caption, MessageBoxButton.YesNo);
+			MessageBoxResult result = MessageBox.Show(Window.GetWindow(this), Properties.Resources.Message_DeletionConformation_Text.Replace("%v1%", selectedItemsCount.ToString()), Properties.Resources.Message_DeletionConformation_Caption, MessageBoxButton.YesNo);
 			if (result == MessageBoxResult.Yes)
 			{
 				externalDataStructureList.RemoveItems(dataGrid.SelectedItems);

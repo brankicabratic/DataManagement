@@ -48,23 +48,36 @@ namespace DataManagement.Models
 				possibleValues = value;
 			}
 		}
+		[XmlIgnore]
+		public bool IsMandatory
+		{
+			get
+			{
+				if (isMandatory == null) return (DataStructure.GetAllAppFields()[Id] as ComboBox).isMandatory.Value;
+				return isMandatory.Value;
+			}
+		}
+
 
 		private string textValue;
 		private List<string> possibleValues;
+		private bool? isMandatory;
 
 		public ComboBox() { }
 
-		public ComboBox(string id, string name, ValidationType validation, string validationValue, List<string> possibleValues, int defaultValueIndex) : base(id, name, validation, validationValue)
+		public ComboBox(string id, string name, ValidationType validation, string validationValue, bool? includeInExcelExport, List<string> possibleValues, int defaultValueIndex, bool isMandatory) : base(id, name, validation, validationValue, includeInExcelExport)
 		{
 			PossibleValues = possibleValues;
 			DefaultValueIndex = defaultValueIndex;
+			this.isMandatory = isMandatory;
 			if (defaultValueIndex >= 0 && defaultValueIndex < possibleValues.Count)
 				textValue = possibleValues[defaultValueIndex];
 		}
 
-		public override FieldControl GenerateUIElement()
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
 			ComboBoxControl control = new ComboBoxControl();
+			control.IsMandatory = !isForEditing && IsMandatory;
 			control.Initialize(this);
 			return control;
 		}
@@ -77,6 +90,11 @@ namespace DataManagement.Models
 		public override string GetDocOutput()
 		{
 			return GetValue();
+		}
+
+		public override object GetXslOutput()
+		{
+			return PossibleValues.IndexOf(textValue);
 		}
 
 		public override void SetValue(string value)

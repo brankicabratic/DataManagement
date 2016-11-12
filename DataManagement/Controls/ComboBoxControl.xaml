@@ -9,6 +9,6 @@
              d:DesignHeight="300" d:DesignWidth="300">
 	<StackPanel Orientation="Horizontal">
 		<Label Name="FieldName" Width="{Binding Source={x:Static properties:Settings.Default}, Path=LabelSize}"/>
-		<ComboBox Name="Value" Margin="0,5"  Width="{Binding Source={x:Static properties:Settings.Default}, Path=TextFieldSize}"/>
+		<ComboBox Name="Value" Margin="0,5"  Width="{Binding Source={x:Static properties:Settings.Default}, Path=TextFieldSize}" SelectionChanged="Value_SelectionChanged"/>
 	</StackPanel>
 </local:FieldControl>

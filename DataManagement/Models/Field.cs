@@ -78,7 +78,21 @@ namespace DataManagement.Models
 			}
 		}
 		[XmlIgnore]
+		public bool IncludeInExcelExport
+		{
+			get
+			{
+				if (includeInExcelExport.HasValue) return includeInExcelExport.Value;
+
+				Field field = CorrespondingField;
+				return field != null && field.includeInExcelExport.HasValue ? field.includeInExcelExport.Value : true;
+			}
+		}
+		[XmlIgnore]
 		public bool IsNested;
+
+		[XmlIgnore]
+		public bool IsLeaf = true;
 
 		[XmlText]
 		public string ValueXml { get { return GetValue(); } set { SetValue(value); } }
@@ -99,15 +113,17 @@ namespace DataManagement.Models
 		private string name;
 		private ValidationType validation;
 		private string validationValue;
+		private bool? includeInExcelExport;
 		
 		public Field() { }
 
-        public Field(string id, string name, ValidationType validation, string validationValue)
+        public Field(string id, string name, ValidationType validation, string validationValue, bool? includeInExcelExport)
         {
             Id = id;
             this.name = name;
             this.validation = validation;
 			this.validationValue = validationValue;
+			this.includeInExcelExport = includeInExcelExport;
         }
 
 		public void SetName(string name)
@@ -135,18 +151,27 @@ namespace DataManagement.Models
 			string validationValue = "";
 			if (node.Attributes[DataStructure.ValidationValueAtt] != null)
 				validationValue = node.Attributes[DataStructure.ValidationValueAtt].Value;
+			bool? includeInExcelExport = null;
+			if (node.Attributes[DataStructure.IncludeInExcelExportAtt] != null)
+			{
+				bool boolValue;
+				if (bool.TryParse(node.Attributes[DataStructure.IncludeInExcelExportAtt].Value, out boolValue))
+				{
+					includeInExcelExport = boolValue;
+				}
+			}
 
 			if (node.Name == TextFieldEl)
 			{
-				newField = new TextField(nodeId, nodeName, validationType, validationValue);
+				newField = new TextField(nodeId, nodeName, validationType, validationValue, includeInExcelExport);
 			}
 			else if (node.Name == DateFieldEl)
 			{
-				newField = new DateField(nodeId, nodeName, validationType, validationValue);
+				newField = new DateField(nodeId, nodeName, validationType, validationValue, includeInExcelExport);
 			}
 			else if (node.Name == TextBlockEl)
 			{
-				newField = new TextBlock(nodeId, nodeName, validationType, validationValue);
+				newField = new TextBlock(nodeId, nodeName, validationType, validationValue, includeInExcelExport);
 			}
 			else if (node.Name == ItemsListEl)
 			{
@@ -162,11 +187,11 @@ namespace DataManagement.Models
 			else if (node.Name == ConditionalTextFieldEl)
 			{
 				string subName = node.Attributes[DataStructure.SubNameAtt].Value;
-				newField = new ConditionalTextField(nodeId, nodeName, subName, validationType, validationValue);
+				newField = new ConditionalTextField(nodeId, nodeName, subName, validationType, validationValue, includeInExcelExport);
 			}
 			else if (node.Name == CheckBoxEl)
 			{
-				newField = new CheckBox(nodeId, nodeName, validationType, validationValue);
+				newField = new CheckBox(nodeId, nodeName, validationType, validationValue, includeInExcelExport);
 			}
 			else if (node.Name == ComboBoxEl)
 			{				
@@ -188,11 +213,13 @@ namespace DataManagement.Models
 				{
 					DataStructure.MainDataStructure.LogError("Default value in combo box " + nodeId + " has to be number.");
 				}
-				newField = new ComboBox(nodeId, nodeName, validationType, validationValue, possibleValues, defaultValueIndex);
+				XmlAttribute mandatoryAtt = node.Attributes[DataStructure.MandatoryAtt];
+				bool isMandatory = mandatoryAtt != null ? mandatoryAtt.Value.ToLower().Equals("true") : false;
+				newField = new ComboBox(nodeId, nodeName, validationType, validationValue, includeInExcelExport, possibleValues, defaultValueIndex, isMandatory);
 			}
 			else if (node.Name == FixedItemsListEl)
 			{
-				FixedItemsList fixedItemsListFied = new FixedItemsList(nodeId, nodeName, validationType, validationValue);
+				FixedItemsList fixedItemsListFied = new FixedItemsList(nodeId, nodeName, validationType, validationValue, includeInExcelExport);
 				fixedItemsListFied.Items = new List<Field>();
 				foreach (XmlNode childNode in node)
 				{
@@ -222,10 +249,11 @@ namespace DataManagement.Models
 			return newField;
         }
 
-		public abstract FieldControl GenerateUIElement();
+		public abstract FieldControl GenerateUIElement(bool isForEditing);
 		public abstract void SetValue(string value);
 		public abstract string GetValue();
 		public abstract string GetDocOutput();
+		public abstract object GetXslOutput();
 
 		private static ValidationType? GetValidationType(string attributeValue)
 		{

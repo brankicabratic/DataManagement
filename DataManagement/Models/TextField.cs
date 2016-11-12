@@ -24,9 +24,9 @@ namespace DataManagement.Models
 
 		public TextField() { }
 
-		public TextField(string id, string name, ValidationType validation, string validationValue) : base(id, name, validation, validationValue) { }
+		public TextField(string id, string name, ValidationType validation, string validationValue, bool? includeInExcelExport) : base(id, name, validation, validationValue, includeInExcelExport) { }
 
-		public override FieldControl GenerateUIElement()
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
 			TextFieldControl control = new TextFieldControl();
 			control.Initialize(this);
@@ -41,6 +41,16 @@ namespace DataManagement.Models
 		public override string GetDocOutput()
 		{
 			return GetValue();
+		}
+
+		public override object GetXslOutput()
+		{
+			int numericalValue;
+			if (int.TryParse(textValue, out numericalValue))
+			{
+				return numericalValue;
+			}
+			return textValue;
 		}
 
 		public override void SetValue(string value)

@@ -23,7 +23,11 @@ namespace DataManagement.Models
 		{
 			get
 			{
-				return (DataStructure.GetAllAppFields()[Id] as FixedItemsList).isConditional;
+				Field field;
+				if (DataStructure.GetAllAppFields().TryGetValue(Id, out field))
+					return (field as FixedItemsList).isConditional;
+				else
+					return isConditional;
 			}
 		}
 		[XmlIgnore]
@@ -33,12 +37,45 @@ namespace DataManagement.Models
 
 		public FixedItemsList() { }
 
-		public FixedItemsList(string id, string name, ValidationType validation, string validationValue) : base(id, name, validation, validationValue) { }
+		public FixedItemsList(string id, string name, ValidationType validation, string validationValue, bool? includeInExcelExport) : base(id, name, validation, validationValue, includeInExcelExport)
+		{
+			IsLeaf = IsConditional;
+		}
 
-		public override FieldControl GenerateUIElement()
+		public Field GetItem(string id)
+		{			
+			Field field = null;
+			string startId = id;
+			while (field == null && id != "")
+			{
+				field = Items.Find(x => x.Id == id);
+				if (field == null)
+				{
+					int index = Math.Max(id.LastIndexOf("_"), id.LastIndexOf("."));
+					id = index >= 0 ? id.Substring(0, index) : "";
+				}
+			}
+
+			if (field == null) return null;
+			
+			if (field.Id != startId && field is FixedItemsList)
+			{
+				return (field as FixedItemsList).GetItem(startId);
+			}
+			else if (field.Id == id)
+			{
+				return field;
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		public override FieldControl GenerateUIElement(bool isForEditing)
 		{
 			FixedItemsListControl itemsListControl = new FixedItemsListControl();
-			itemsListControl.Initialize(this);
+			itemsListControl.Initialize(this, isForEditing);
 			return itemsListControl;
 		}
 
@@ -66,17 +103,29 @@ namespace DataManagement.Models
 			if (IsConditional && !BoolValue) return "-";
 
 			StringBuilder sb = new StringBuilder();
-		
+
+			bool first = true;
 			foreach (Field field in Items)
 			{
-				sb.Append(field.GetDocOutput() + "\n\n");
+				if (first)
+					first = false;
+				else
+					sb.Append("\n\n");
+				sb.Append(field.GetDocOutput());
 			}
 
 			return sb.ToString();
 		}
 
+		public override object GetXslOutput()
+		{
+			return BoolValue ? 1 : 0;
+		}
+
 		public override void SetValue(string value)
 		{
+			IsLeaf = IsConditional;
+
 			BoolValue = !IsConditional || !string.IsNullOrEmpty(value) && value != FalseAnswer;
 
 			if (value == null) return;
@@ -94,6 +143,7 @@ namespace DataManagement.Models
 		public void SetIsConditional(bool isConditional)
 		{
 			this.isConditional = isConditional;
+			IsLeaf = isConditional;
 		}
 	}
 }

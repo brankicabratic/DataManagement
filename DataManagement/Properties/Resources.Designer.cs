@@ -241,6 +241,24 @@ namespace DataManagement.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Obavezna polja nisu popunjena.
+        /// </summary>
+        public static string Message_MandatoryFieldsNotEdited_Caption {
+            get {
+                return ResourceManager.GetString("Message_MandatoryFieldsNotEdited_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Za svaku sekciju morate označiti da li je editovana ili ne..
+        /// </summary>
+        public static string Message_MandatoryFieldsNotEdited_Text {
+            get {
+                return ResourceManager.GetString("Message_MandatoryFieldsNotEdited_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pregled pacijenata.
         /// </summary>
         public static string Message_OnlyOnePreview_Caption {
@@ -273,6 +291,15 @@ namespace DataManagement.Properties {
         public static string No {
             get {
                 return ResourceManager.GetString("No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Polje ne sme biti prazno..
+        /// </summary>
+        public static string Validation_FieldIsEmpty {
+            get {
+                return ResourceManager.GetString("Validation_FieldIsEmpty", resourceCulture);
             }
         }
         
