@@ -45,8 +45,13 @@ namespace DataManagement.Models
 
 		public override object GetXslOutput()
 		{
-			int numericalValue;
-			if (int.TryParse(textValue, out numericalValue))
+			switch (Validation)
+			{
+				case ValidationType.JMBG:
+					return textValue;
+			}
+			float numericalValue;
+			if (float.TryParse(textValue, out numericalValue))
 			{
 				return numericalValue;
 			}

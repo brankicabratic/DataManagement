@@ -73,6 +73,25 @@ namespace DataManagement.Models
 			}
 		}
 
+		public static void SaveData(string path)
+		{
+			lock (lockObj)
+			{
+				XmlSerializer xsSubmit = new XmlSerializer(typeof(Data));
+				StringWriter sww = new StringWriter();
+				using (XmlWriter writer = XmlWriter.Create(sww, new XmlWriterSettings { OmitXmlDeclaration = true }))
+				{
+					xsSubmit.Serialize(writer, instance);
+					var xml = sww.ToString();
+
+					using (StreamWriter sw = File.AppendText(path))
+					{
+						sw.Write(xml);
+					}
+				}
+			}
+		}
+
 		public static void AddDataItem(DataItem dataItem)
 		{
 			lock (lockObj)

@@ -1,5 +1,5 @@
-﻿using DataManagement.Models;
-using ExcelLibrary.SpreadSheet;
+﻿using ClosedXML.Excel;
+using DataManagement.Models;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -21,6 +21,8 @@ namespace DataManagement
 {
 	class ExcelExportDataItem
 	{
+		public int ColStart;
+		public int ColEnd;
 		public int RowsCount
 		{
 			get
@@ -28,13 +30,37 @@ namespace DataManagement
 				if (SubItems.Count == 0) return 1;
 				else
 				{
+					Dictionary<string, List<ExcelExportDataItem>> grouped = GroupedSubItems;
 					int rowsCount = 0;
-					foreach (ExcelExportDataItem subItem in SubItems)
-						rowsCount += subItem.RowsCount;
+					foreach (string key in grouped.Keys)
+					{
+						int rowsCountLocal = 0;
+						foreach (ExcelExportDataItem subItem in grouped[key])
+							rowsCountLocal += subItem.RowsCount;
+						if (rowsCountLocal > rowsCount)
+							rowsCount = rowsCountLocal;
+					}
 					return rowsCount;
 				}
 			}
 		}
+
+		public Dictionary<string, List<ExcelExportDataItem>> GroupedSubItems
+		{
+			get
+			{
+				Dictionary<string, List<ExcelExportDataItem>> groupedByColStartEnd = new Dictionary<string, List<ExcelExportDataItem>>();
+				foreach (ExcelExportDataItem subItem in SubItems)
+				{
+					string colsStartEnd = subItem.ColStart + "-" + subItem.ColEnd;
+					if (!groupedByColStartEnd.ContainsKey(colsStartEnd))
+						groupedByColStartEnd[colsStartEnd] = new List<ExcelExportDataItem>();
+					groupedByColStartEnd[colsStartEnd].Add(subItem);
+				}
+				return groupedByColStartEnd;
+			}
+		}
+
 		public List<ExcelExportDataItem> SubItems = new List<ExcelExportDataItem>();
 	}
 
@@ -77,49 +103,64 @@ namespace DataManagement
 		private void ExportButton_Click(object sender, RoutedEventArgs e)
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
-			saveFileDialog.DefaultExt = ".xls";
-			saveFileDialog.Filter = "Document (*xls)|*xls";
+			saveFileDialog.DefaultExt = ".xlsx";
+			saveFileDialog.Filter = "Document (*xlsx)|*xlsx";
 			if (saveFileDialog.ShowDialog() == true)
 			{
-				Workbook workbook = new Workbook();
-				Worksheet worksheet = new Worksheet("Data");
-				Dictionary<string, Field> leafFields = DataStructure.GetAllExcelExportFields();
-				int headerCol = 0;
-				foreach (string fieldID in leafFields.Keys)
-				{					
-					worksheet.Cells[0, headerCol++] = new Cell(fieldID);
+				XLWorkbook workbook = new XLWorkbook();
+				IXLWorksheet worksheet = workbook.Worksheets.Add("Data");
+				Dictionary<string, Field> excelFields = DataStructure.GetAllExcelExportFields();
+				int headerCol = 1;
+				foreach (string fieldID in excelFields.Keys)
+				{
+					worksheet.Cell(1, headerCol).Value = fieldID;
+					worksheet.Column(headerCol).Width = Properties.Settings.Default.ExcelColumnWidth;
+					headerCol++;
 				}
-				worksheet.Cells.ColumnWidth[0, (ushort)headerCol] = Properties.Settings.Default.ExcelColumnWidth;
 
 				Func<ExcelExportDataItem, List<DataItem>, int, int, int> enterDataItems = null;
 				enterDataItems = (parentExcelExportDataItem, items, row, col) =>
 				{
 					int firstCol = col;
+					int lastCol = col;
 					foreach (DataItem dataItem in items)
 					{
 						ExcelExportDataItem excelExportDataItem = new ExcelExportDataItem();
-						parentExcelExportDataItem.SubItems.Add(new ExcelExportDataItem());
+						excelExportDataItem.ColStart = col;
+						parentExcelExportDataItem.SubItems.Add(excelExportDataItem);
 						HashSet<Field> examinedComplexFields = new HashSet<Field>();
-						foreach (string fieldID in DataStructure.GetAllExcelExportFields().Keys)
+						foreach (string fieldID in excelFields.Keys)
 						{
 							Field field = dataItem.GetFieldWithParentReturn(fieldID);
 							if (field == null)
 							{
 								continue;
 							}
-							else if (field.IsLeaf && (field.Id == fieldID))
+							else if (field.Id == fieldID)
 							{
-								worksheet.Cells[row, col++] = new Cell(field.GetXslOutput());
+								if (field.IsLeaf)
+								{
+									IXLCell cell = worksheet.Cell(row, col++);
+									object value = field.GetXslOutput();
+									cell.Value = value;
+									if (value is string)
+										cell.DataType = XLCellValues.Text;
+								}
 							}
 							else
 							{
 								if (field is FixedItemsList)
 								{
-									if (field.Id == fieldID) continue;
 									FixedItemsList fixedItemsList = field as FixedItemsList;
 									Field subField = fixedItemsList.GetItem(fieldID);
 									if (subField != null && subField.IsLeaf)
-										worksheet.Cells[row, col] = new Cell(subField.GetXslOutput());
+									{
+										IXLCell cell = worksheet.Cell(row, col);
+										object value = subField.GetXslOutput();
+										cell.Value = value;
+										if (value is string)
+											cell.DataType = XLCellValues.Text;
+									}
 									if (subField == null || subField.IsLeaf) col++;
 								}
 								else if (field is ExternalDataStructureList)
@@ -131,36 +172,72 @@ namespace DataManagement
 								}
 							}
 						}
+						excelExportDataItem.ColEnd = col;
+						lastCol = col;
 						col = firstCol;
 						row += excelExportDataItem.RowsCount;
 					}
-					return col;
+					return lastCol;
 				};
 
+				Action<ExcelExportDataItem, int> mergeCells = null;
+				mergeCells = (excelDataItem, row) =>
+				{
+					int startRow = row;
+					Dictionary<string, List<ExcelExportDataItem>> groupedItems = excelDataItem.GroupedSubItems;
+					foreach (List<ExcelExportDataItem> group in groupedItems.Values)
+					{
+						if (group.Count == 0) continue;
+						int colStart = group[0].ColStart;
+						int colEnd = group[0].ColEnd;
+						foreach (ExcelExportDataItem item in group)
+						{
+							Dictionary<string, List<ExcelExportDataItem>> itemGroupedItems = item.GroupedSubItems;
+							for (int i = colStart; i < colEnd; i++)
+							{
+								bool isFree = true;
+								foreach (List<ExcelExportDataItem> itemGroup in itemGroupedItems.Values)
+								{
+									if (itemGroup.Count == 0) continue;
+									isFree = !(i >= itemGroup[0].ColStart && i < itemGroup[0].ColEnd);
+									if (!isFree) break;
+								}
+								if (isFree)
+									worksheet.Range(row, i, row + item.RowsCount - 1, i).Merge();
+							}
+							row += item.RowsCount;
+						}
+						row = startRow;						
+					}
+				};
+				
 				ExcelExportDataItem mainItem = new ExcelExportDataItem();
-				enterDataItems(mainItem, Data.GetAllData().ToList(), 1, 0);
+				mainItem.ColStart = 1;
+				mainItem.ColEnd = enterDataItems(mainItem, Data.GetAllData().ToList(), 2, 1);
+				mergeCells(mainItem, 2);
 
-				/*
-				worksheet.Cells[0, 1] = new Cell((short)1);
-				worksheet.Cells[2, 0] = new Cell(9999999);
-				worksheet.Cells[3, 3] = new Cell((decimal)3.45);
-				worksheet.Cells[2, 2] = new Cell("Text string");
-				worksheet.Cells[2, 4] = new Cell("Second string");
-				worksheet.Cells[4, 0] = new Cell(32764.5, "#,##0.00");
-				worksheet.Cells[5, 1] = new Cell(DateTime.Now, @"YYYY-MM-DD");
-				
-				
-				*/
-				
-				workbook.Worksheets.Add(worksheet);
 				try
 				{
-					workbook.Save(saveFileDialog.FileName);
+					workbook.SaveAs(saveFileDialog.FileName);
 				}
 				catch (Exception ex)
 				{
 					Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
 				}
+			}
+		}
+
+		private void BackupButton_Click(object sender, RoutedEventArgs e)
+		{
+			SaveFileDialog saveFileDialog = new SaveFileDialog();
+			saveFileDialog.DefaultExt = ".xml";
+			saveFileDialog.Filter = "XML (*xml)|*xml";
+			if (saveFileDialog.ShowDialog() == true)
+			{
+				if (File.Exists(saveFileDialog.FileName))
+					MessageBox.Show(this, Properties.Resources.Message_BackupFileAlreadyExists_Text, Properties.Resources.Message_BackupFileAlreadyExists_Caption);
+				else
+					Data.SaveData(saveFileDialog.FileName);
 			}
 		}
 

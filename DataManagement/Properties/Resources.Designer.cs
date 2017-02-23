@@ -142,6 +142,24 @@ namespace DataManagement.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Greška pri čuvanju bekapa.
+        /// </summary>
+        public static string Message_BackupFileAlreadyExists_Caption {
+            get {
+                return ResourceManager.GetString("Message_BackupFileAlreadyExists_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bekap ne može da se sačuva u već postojeći fajl..
+        /// </summary>
+        public static string Message_BackupFileAlreadyExists_Text {
+            get {
+                return ResourceManager.GetString("Message_BackupFileAlreadyExists_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Odustanak od editovanja.
         /// </summary>
         public static string Message_ChangeLossWarning_Caption {

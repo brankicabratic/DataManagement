@@ -144,6 +144,12 @@
   <data name="ExternalDataViewItem_Title" xml:space="preserve">
     <value>Pregled pacijenta</value>
   </data>
+  <data name="Message_BackupFileAlreadyExists_Caption" xml:space="preserve">
+    <value>Greška pri čuvanju bekapa</value>
+  </data>
+  <data name="Message_BackupFileAlreadyExists_Text" xml:space="preserve">
+    <value>Bekap ne može da se sačuva u već postojeći fajl.</value>
+  </data>
   <data name="Message_ChangeLossWarning_Caption" xml:space="preserve">
     <value>Odustanak od editovanja</value>
   </data>
