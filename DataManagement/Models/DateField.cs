@@ -49,7 +49,7 @@ namespace DataManagement.Models
 
 		public override object GetXslOutput()
 		{
-			return textValue;
+			return DateValue.ToString();
 		}
 
 		public override void SetValue(string value)

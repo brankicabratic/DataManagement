@@ -47,14 +47,15 @@ namespace DataManagement.Models
 		{
 			switch (Validation)
 			{
-				case ValidationType.JMBG:
-					return textValue;
+				case ValidationType.Range:
+					float numericalValue;
+					if (float.TryParse(textValue, out numericalValue))
+					{
+						return numericalValue;
+					}
+					break;
 			}
-			float numericalValue;
-			if (float.TryParse(textValue, out numericalValue))
-			{
-				return numericalValue;
-			}
+
 			return textValue;
 		}
 

@@ -143,7 +143,9 @@ namespace DataManagement
 									IXLCell cell = worksheet.Cell(row, col++);
 									object value = field.GetXslOutput();
 									cell.Value = value;
-									if (value is string)
+									if (field is DateField)
+										cell.DataType = XLCellValues.DateTime;
+									else if (value is string)
 										cell.DataType = XLCellValues.Text;
 								}
 							}
@@ -158,7 +160,9 @@ namespace DataManagement
 										IXLCell cell = worksheet.Cell(row, col);
 										object value = subField.GetXslOutput();
 										cell.Value = value;
-										if (value is string)
+										if (subField is DateField)
+											cell.DataType = XLCellValues.DateTime;
+										else if (value is string)
 											cell.DataType = XLCellValues.Text;
 									}
 									if (subField == null || subField.IsLeaf) col++;
